@@ -968,7 +968,13 @@ http_token_t http_parse(http_parser_t* parser, hs_stream_t* stream) {
   http_token_t token = hs_meta_emit(parser);
   if (token.type != HS_TOK_NONE) return token;
   while (hs_stream_next(stream, &c)) {
-    int type = c < 0 ? HS_ETC : hs_ctype[(int)c];
+    // int type = c < 0 ? HS_ETC : hs_ctype[(int)c];
+    if (c < 0 || c >= 128) {
+      hs_stream_consume(stream);
+      continue;
+    }
+    int type = hs_ctype[(int)c];
+    //
     int to = hs_transitions[parser->state * HS_CHAR_TYPE_LEN + type];
     if (parser->meta == M_ZER && parser->state == HN && to == BD) {
       to = CS;
